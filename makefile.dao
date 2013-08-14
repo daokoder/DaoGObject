@@ -1,0 +1,41 @@
+
+daovm  = DaoMake::FindPackage( "Dao", $REQUIRED )
+ffi = DaoMake::FindPackage( "FFI", $REQUIRED )
+glib = DaoMake::FindPackage( "GLib", $REQUIRED )
+gir = DaoMake::FindPackage( "GIR", $REQUIRED )
+
+if( daovm == none or ffi == none or glib == none or gir == none ) return
+
+project = DaoMake::Project( "DaoGobject" ) 
+
+project.UseImportLibrary( daovm, "dao" )
+project.UseImportLibrary( ffi, "FFI" )
+project.UseImportLibrary( glib, "GLib" )
+
+project.AddIncludePath( "." )
+project.AddIncludePath( "../../kernel" )
+
+gobject_objs = project.AddObjects( { "dao_gobject.c" } )
+gobject_dll = project.AddSharedLibrary( "dao_gobject", gobject_objs )
+gobject_dll.UseImportLibrary( gir, "GIR" )
+
+sample_objs = project.AddObjects( { "sample/test-sample.c" }, { "sample/test-sample.h" } )
+sample_objs.AddIncludePath( "sample" )
+sample_dll = project.AddSharedLibrary( "sample", sample_objs )
+
+
+command =
+"g-ir-scanner --namespace=Test --nsversion=1.0 "
+"--include=GObject-2.0 --pkg=gobject-2.0 "
+"--library=sample sample/test-sample.h sample/test-sample.c "
+"-o Test-1.0.gir"
+
+sample_gir = project.AddCommand( "Test-1.0.gir: sample/test-sample.h", command )
+sample_gir.AddCommand( "g-ir-compiler Test-1.0.gir -o Test-1.0.typelib" )
+
+
+
+#project.GenerateFinder( $TRUE );
+#project.Install( daovm.GetPath( "MOD-PATH" ), gobject_dll );
+#project.Install( daovm.GetPath( "MOD-PATH" ), ffiite_dll );
+#project.Install( daovm.GetPath( "MOD-PATH" ), myffi_dll );

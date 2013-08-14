@@ -1,0 +1,17 @@
+
+load gobject
+
+const ns = gir_load( "Test", "1.0", "." )
+use ns
+
+test(1.5)
+ret = test2( [ 1.5F, 2.5 ], 2 )
+io.writeln( ret )
+
+io.writeln( std.about( create ) )
+
+obj = create( 'any', 123 )
+
+io.writeln( obj )
+
+obj.printf()
